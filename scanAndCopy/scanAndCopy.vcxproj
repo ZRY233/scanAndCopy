@@ -147,7 +147,7 @@
     <ResourceCompile Include="scanAndCopy.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\111.ico" />
+    <Image Include="..\..\..\..\Downloads\312312.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

