@@ -120,28 +120,12 @@ int main()
 
 again:
 
-	char copyedDrvList[32][4]{};
-	int copyedDrvCount = 0;
-
 	while (true)
 	{
 		char remDrvList[32][4]{};
 		int remDrvCount = 0;
-		char tmpDrvList[32][4]{};
-		int tmpDrvCount = 0;
 
-		tmpDrvCount = getRemovableDriver(tmpDrvList);
-
-		for (int i = 0; i < tmpDrvCount; i++)
-		{
-			for (int j = 0; j < copyedDrvCount; j++)
-			{
-				if (strcmp(tmpDrvList[i], copyedDrvList[j]) != 0)
-				{
-					strcpy_s(remDrvList[remDrvCount++], tmpDrvList[i]);
-				}
-			}
-		}
+		remDrvCount = getRemovableDriver(remDrvList);
 
 		do
 		{
@@ -165,7 +149,6 @@ again:
 				cerr << e.what() << endl;
 				goto again;
 			}
-			strcpy_s(copyedDrvList[copyedDrvCount++], 4, remDrvList[i]);
 		}
 	}
 }
