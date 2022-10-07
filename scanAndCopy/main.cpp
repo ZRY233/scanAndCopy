@@ -109,7 +109,7 @@ void copyFiles(const char* src)
 
 int main()
 {
-	ifstream inputFile();
+	ifstream inputFile(FNE_MAP);
 
 
 
